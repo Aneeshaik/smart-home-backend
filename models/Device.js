@@ -14,8 +14,8 @@ const DeviceSchema = new mongoose.Schema({
         required: true,
     },
     lastUpdated : {
-        type: Time,
-        default: Time.now
+        type: Date,
+        default: Date.now
     }
 })
 
