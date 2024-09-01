@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const DeviceSchema = new mongoose.Schema({
-    name : {
-        type: String,
+    id: {
+        type: Number,
         required: true,
     },
-    type : {
+    name : {
         type: String,
         required: true,
     },

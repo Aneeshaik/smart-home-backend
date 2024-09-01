@@ -8,8 +8,8 @@ router.get('/', async(req, res) => {
 })
 
 router.post('/', async(req, res) => {
-    const {name, type, status} = req.body;
-    const device = new Device({name, type, status});
+    const {name, status} = req.body;
+    const device = new Device({name, status});
     await device.save()
     res.json(device)
 })
