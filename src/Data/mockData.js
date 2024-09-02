@@ -8,49 +8,49 @@ const mockData = [
       id: 1,
       icon: 'security-icon.svg',
       name: 'Security',
-      status: 'off',
+      status: false,
     },
     {
       id: 2,
       icon: 'camera-icon.svg',
       name: 'Camera',
-      status: 'on',
+      status: true,
     },
     {
       id: 3,
       icon: 'light-icon.svg',
       name: 'Light',
-      status: 'off',
+      status: false,
     },
     {
         id: 4,
         icon: 'fan-grey-icon.svg',
         name: 'Fan',
-        status: 'off',
+        status: false,
     },
     {
         id: 5,
         icon: 'tv-icon.svg',
         name: 'TV',
-        status: 'on',
+        status: true,
     },
     {
         id: 6,
         icon: 'fridge.svg',
         name: 'Fridge',
-        status: 'on',
+        status: true,
     },
     {
         id: 7,
         icon: 'heater.svg',
         name: 'Heater',
-        status: 'off',
+        status: false,
     },
     {
         id: 8,
         icon: 'coffee-maker.svg',
-        name: 'COffee Maker',
-        status: 'off',
+        name: 'Coffee Maker',
+        status: false,
     }
   ];
   
