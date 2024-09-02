@@ -5,6 +5,10 @@ const DeviceSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    icon: {
+        type: String,
+        required: true,
+    },
     name : {
         type: String,
         required: true,
