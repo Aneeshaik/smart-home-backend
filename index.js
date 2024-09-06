@@ -2,12 +2,15 @@ const express = require('express');
 const dotenv = require('dotenv');
 const mongodb = require('mongodb');
 const cors = require('cors');
+const bcrypt = require('bcrypt')
 const Device = require('./src/models/Device')
 const connectDB = require('./db');
 const mockData = require('./src/Data/mockData')
 const deviceRoutes = require('./src/routes/device')
 const path = require('path')
 const bodyParser = require('body-parser')
+const User = require('./src/models/User')
+
 
 const PORT = process.env.PORT || 5000
 const app = express();
@@ -69,6 +72,27 @@ app.put('/api/devices/:id', async (req, res) => {
     } catch (error) {
         console.error('Error updating device status:', error);
         res.status(500).json({ error: 'Failed to update device status' });
+    }
+})
+
+app.post('/register', async(req, res) => {
+    const { firstName, lastName, password, email } = req.body;
+    try{
+        const existedUser = User.findOne({email})
+        if(existedUser) {
+            return res.status(400).json({error: 'Email already exists'})
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = new User({
+            firstName,
+            lastName,
+            email,
+            password: hashedPassword
+        })
+        await user.save()
+    }
+    catch(error){
+        console.error(error)
     }
 })
 
