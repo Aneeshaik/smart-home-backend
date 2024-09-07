@@ -2,19 +2,19 @@ const express = require('express');
 const dotenv = require('dotenv');
 const mongodb = require('mongodb');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const Device = require('./src/models/Device')
 const connectDB = require('./db');
 const mockData = require('./src/Data/mockData')
-const deviceRoutes = require('./src/routes/device')
 const path = require('path')
 const bodyParser = require('body-parser')
 const User = require('./src/models/User')
 
-
 const PORT = process.env.PORT || 5000
 const app = express();
 const router = express.Router();
+dotenv.config();
 
 connectDB();
 app.use(bodyParser.urlencoded({extended: true}));
@@ -30,6 +30,8 @@ const insertMockdata = async() => {
     }
     // await Device.deleteMany();
 }
+insertMockdata();
+
 const updateDeviceStatus = async(deviceId, updatedDevice) => {
     try {
         const device = await Device.findByIdAndUpdate(deviceId, updatedDevice, {new : true})
@@ -42,7 +44,21 @@ const updateDeviceStatus = async(deviceId, updatedDevice) => {
     }
 }
 
-insertMockdata();
+const authMiddleware = (req, res, next) => {
+    const authHeader = req.header.authorization
+    if(!authHeader){
+        res.status(401).json({error: "Unauthorized"})
+    }
+    const token = authHeader.split('')[1]
+    try{
+        const decoded = jwt.verify(token, process.env.SECRET_KEY)
+        req.user = decoded
+        next()
+    }
+    catch(error){
+        res.status(401).json({error: "Invalid token"})
+    }
+}
 
 app.get('/', (req, res) => {
     res.send('Smart Home DashBoard Backend!')
@@ -58,6 +74,10 @@ app.get('/images/:imageName', (req, res) => {
     const imagePath = path.join(__dirname, 'public/images', imageName);
     res.sendFile(imagePath);
 });
+
+router.get('/auth/check', authMiddleware, (req, res, next) => {
+    res.json({isRegistered: true})
+})
 
 app.put('/api/devices/:id', async (req, res) => {
     const deviceId = req.params.id;
@@ -76,12 +96,12 @@ app.put('/api/devices/:id', async (req, res) => {
 })
 
 app.post('/register', async(req, res) => {
-    const { firstName, lastName, password, email } = req.body;
+    const { firstName, lastName, email, password } = req.body;
     try{
-        const existedUser = User.findOne({email})
+        const existedUser = await User.findOne({email})
         if(existedUser) {
             return res.status(400).json({error: 'Email already exists'})
-        }
+        } else{
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({
             firstName,
@@ -91,7 +111,11 @@ app.post('/register', async(req, res) => {
         })
         await user.save()
     }
+        const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '1h'})
+        res.status(201).json({message: "Registration Successful", token})
+    }
     catch(error){
+        res.status(500).json({message: "Registration Failed"})
         console.error(error)
     }
 })
