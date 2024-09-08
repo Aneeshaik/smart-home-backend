@@ -69,6 +69,11 @@ app.get('/api/devices', async(req, res) => {
     res.json(devices)
 })
 
+app.get('/users/:id', async(req,res) => {
+    const users = await User.find()
+    res.json(users)
+})
+
 app.get('/images/:imageName', (req, res) => {
     const { imageName } = req.params
     const imagePath = path.join(__dirname, 'public/images', imageName);
@@ -101,7 +106,7 @@ app.post('/register', async(req, res) => {
         const existedUser = await User.findOne({email})
         if(existedUser) {
             return res.status(400).json({error: 'Email already exists'})
-        } else{
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({
             firstName,
@@ -110,7 +115,6 @@ app.post('/register', async(req, res) => {
             password: hashedPassword
         })
         await user.save()
-    }
         const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '1h'})
         res.status(201).json({message: "Registration Successful", token})
     }
