@@ -45,13 +45,14 @@ const updateDeviceStatus = async(deviceId, updatedDevice) => {
 }
 
 const authMiddleware = (req, res, next) => {
-    const authHeader = req.header.authorization
+    const authHeader = req.headers.authorization
+    // console.log(authHeader);
     if(!authHeader){
         res.status(401).json({error: "Unauthorized"})
     }
-    const token = authHeader.split('')[1]
+    const token = authHeader.split(' ')[1]
     try{
-        const decoded = jwt.verify(token, process.env.SECRET_KEY)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
         req.user = decoded
         next()
     }
@@ -80,7 +81,7 @@ app.get('/images/:imageName', (req, res) => {
     res.sendFile(imagePath);
 });
 
-router.get('/auth/check', authMiddleware, (req, res, next) => {
+app.get('/auth/check', authMiddleware, (req, res, next) => {
     res.json({isRegistered: true})
 })
 
