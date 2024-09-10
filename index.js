@@ -53,6 +53,7 @@ const authMiddleware = (req, res, next) => {
     const token = authHeader.split(' ')[1]
     try{
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        console.log(decoded)
         req.user = decoded
         next()
     }
@@ -101,7 +102,26 @@ app.put('/api/devices/:id', async (req, res) => {
     }
 })
 
-app.post('/register', async(req, res) => {
+app.post('/signin', async(req, res) => {
+    const { email, password } = req.body;
+    try{
+        const user = await User.findOne({email})
+        if(!user){
+            return res.status(401).json({message: "Invalid username"})
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch){
+            return res.status(401).json({message: "Invalid password"})
+        }
+        const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '1h'})
+        res.status(201).json({message: "Successfully logged in!", token})
+    }
+    catch(error){
+        res.status(500).json({message: 'Server Error'})
+    }
+})
+
+app.post('/signup', async(req, res) => {
     const { firstName, lastName, email, password } = req.body;
     try{
         const existedUser = await User.findOne({email})
