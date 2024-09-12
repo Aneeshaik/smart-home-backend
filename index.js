@@ -4,7 +4,7 @@ const mongodb = require('mongodb');
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-const Device = require('./src/models/Device')
+const { Device, House } = require('./src/models/House')
 const connectDB = require('./db');
 const mockData = require('./src/Data/mockData')
 const path = require('path')
@@ -72,8 +72,8 @@ app.get('/api/devices', async(req, res) => {
 })
 
 app.get('/users/:id', async(req,res) => {
-    const users = await User.find()
-    res.json(users)
+    const user = await User.findOne({_id: req.params.id})
+    res.json(user)
 })
 
 app.get('/images/:imageName', (req, res) => {
@@ -114,7 +114,8 @@ app.post('/signin', async(req, res) => {
             return res.status(401).json({message: "Invalid password"})
         }
         const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '1h'})
-        res.status(201).json({message: "Successfully logged in!", token})
+        const userId = user._id
+        res.status(201).json({message: "Successfully logged in!", token, userId})
     }
     catch(error){
         res.status(500).json({message: 'Server Error'})
@@ -137,12 +138,32 @@ app.post('/signup', async(req, res) => {
         })
         await user.save()
         const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '1h'})
-        res.status(201).json({message: "Registration Successful", token})
+        const userId = user._id
+        res.status(201).json({message: "Registration Successful", token, userId})
     }
     catch(error){
         res.status(500).json({message: "Registration Failed"})
         console.error(error)
     }
+})
+
+app.post('/house', async(req, res) => {
+    try {
+        const userHouse = new House({
+            userName: req.body.userName,
+            rooms: req.body.rooms
+        })
+        await userHouse.save();
+        res.status(201).json({message: "House Added Successfully,", userHouse})
+    }
+    catch(error){
+        res.status(401).json(error);
+    }
+})
+
+app.get('/house', async(req, res) => {
+    const data = await House.find();
+    res.status(200).json(data);
 })
 
 app.listen(PORT, () => {

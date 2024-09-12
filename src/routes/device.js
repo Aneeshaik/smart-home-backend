@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Device = require('../models/Device');
+const Device = require('../models/House');
 
 router.get('/', async(req, res) => {
     const devices = await Device.find();
