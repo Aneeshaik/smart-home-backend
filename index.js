@@ -94,7 +94,6 @@ app.put('/api/devices/:id', async (req, res) => {
     try {
         // Update the status in your database or data storage
         const updatedDeviceFromBackend = await updateDeviceStatus(deviceId, updatedDevice);
-
         res.status(200).json(updatedDeviceFromBackend);
     } catch (error) {
         console.error('Error updating device status:', error);
