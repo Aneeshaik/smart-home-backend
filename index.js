@@ -148,13 +148,21 @@ app.post('/signup', async(req, res) => {
 })
 
 app.post('/house', async(req, res) => {
+    const {userName, room} = req.body
     try {
-        const userHouse = new House({
+        const existingHouse = await House.findOne({userName})
+        if(existingHouse){
+            existingHouse.rooms.push(room);
+            await existingHouse.save();
+            return res.status(201).json({message: "Successfully appended room", existingHouse})
+        } else {
+        const newHouse = new House({
             userName: req.body.userName,
-            rooms: req.body.rooms
+            rooms: req.body.room
         })
-        await userHouse.save();
-        res.status(201).json({message: "House Added Successfully,", userHouse})
+        await newHouse.save();
+        res.status(201).json({message: "House Added Successfully,", newHouse})
+    }
     }
     catch(error){
         res.status(401).json(error);
