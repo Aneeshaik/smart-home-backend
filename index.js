@@ -153,14 +153,14 @@ app.post('/house', async(req, res) => {
         if(existingHouse){
             existingHouse.rooms.push(room);
             await existingHouse.save();
-            return res.status(201).json({message: "Successfully appended room", existingHouse})
+            return res.status(201).json({message: "Successfully appended room", house: existingHouse})
         } else {
         const newHouse = new House({
             userName: req.body.userName,
             rooms: req.body.room
         })
         await newHouse.save();
-        res.status(201).json({message: "House Added Successfully,", newHouse})
+        res.status(201).json({message: "House Added Successfully,", house: newHouse})
     }
     }
     catch(error){
