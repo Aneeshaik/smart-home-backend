@@ -19,10 +19,6 @@ const userSchema = mongoose.Schema({
         required: true
 
     },
-    devices: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Device'
-    }]
 })
 
 const User = mongoose.model('User', userSchema);

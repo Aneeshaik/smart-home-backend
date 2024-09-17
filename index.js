@@ -146,16 +146,18 @@ app.post('/signup', async(req, res) => {
     }
 })
 
-app.post('/house', async(req, res) => {
-    const {userName, room} = req.body
+app.post('/house', authMiddleware, async(req, res) => {
+    const { room } = req.body
     try {
-        const existingHouse = await House.findOne({userName})
+        const userId = req.user.userId
+        const existingHouse = await House.findOne({userId: userId})
         if(existingHouse){
             existingHouse.rooms.push(room);
             await existingHouse.save();
             return res.status(201).json({message: "Successfully appended room", house: existingHouse})
         } else {
         const newHouse = new House({
+            userId: userId,
             userName: req.body.userName,
             rooms: req.body.room
         })
@@ -168,8 +170,9 @@ app.post('/house', async(req, res) => {
     }
 })
 
-app.get('/house', async(req, res) => {
-    const data = await House.find();
+app.get('/house', authMiddleware, async(req, res) => {
+    const userId = req.user.userId
+    const data = await House.findOne({userId: userId}).populate('userId');
     res.status(200).json(data);
 })
 
