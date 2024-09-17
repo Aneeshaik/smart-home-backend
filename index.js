@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose')
 const mongodb = require('mongodb');
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
@@ -32,15 +33,32 @@ const insertMockdata = async() => {
 }
 insertMockdata();
 
-const updateDeviceStatus = async(deviceId, updatedDevice) => {
+const updateDeviceStatus = async(houseId, roomId, deviceId, updatedDevice) => {
+    const houseIdObj = new mongoose.Types.ObjectId(houseId);
+    const roomIdObj = new mongoose.Types.ObjectId(roomId);
+    const deviceIdObj = new mongoose.Types.ObjectId(deviceId);
     try {
-        const device = await Device.findByIdAndUpdate(deviceId, updatedDevice, {new : true})
-        if (!device) {
+        const house = await House.findOneAndUpdate(
+            { _id: houseIdObj, "rooms._id": roomIdObj, "rooms.devices._id": deviceIdObj },
+            {
+                $set: {
+                    "rooms.$[room].devices.$[device]": updatedDevice
+                }
+            },
+            {
+                new: true,
+                arrayFilters: [
+                    { "room._id": roomIdObj },
+                    { "device._id": deviceIdObj }
+                ]
+            }
+        );
+        if (!house) {
             throw new Error('Device not found');
         }
-        return device;
+        return house;
     } catch (error) {
-        throw new Error('Error updating device status:', error);
+        throw new Error(`Error updating device status: ${error.message}`);
     }
 }
 
@@ -86,14 +104,14 @@ app.get('/auth/check', authMiddleware, (req, res, next) => {
     res.json({isRegistered: true})
 })
 
-app.put('/api/devices/:id', async (req, res) => {
-    const deviceId = req.params.id;
+app.put('/houses/:houseId/rooms/:roomId/devices/:deviceId', async (req, res) => {
+    const { houseId, roomId, deviceId } = req.params;
     const updatedDevice = req.body;
     // console.log(updatedDevice);
     
     try {
         // Update the status in your database or data storage
-        const updatedDeviceFromBackend = await updateDeviceStatus(deviceId, updatedDevice);
+        const updatedDeviceFromBackend = await updateDeviceStatus(houseId, roomId, deviceId, updatedDevice);
         res.status(200).json(updatedDeviceFromBackend);
     } catch (error) {
         console.error('Error updating device status:', error);
