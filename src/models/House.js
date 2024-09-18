@@ -28,6 +28,9 @@ const roomsSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    aC: {
+        type: Boolean,
+    },
     devices: [deviceSchema]
 })
 

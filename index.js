@@ -5,7 +5,7 @@ const mongodb = require('mongodb');
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-const { Device, House } = require('./src/models/House')
+const { House } = require('./src/models/House')
 const connectDB = require('./db');
 const mockData = require('./src/Data/mockData')
 const path = require('path')
@@ -24,19 +24,19 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')))
 // app.use('/api/devices', deviceRoutes)
 
-const insertMockdata = async() => {
-    const items = await Device.find();
-    if (items.length === 0){
-        await Device.insertMany(mockData);
-    }
-    // await Device.deleteMany();
-}
-insertMockdata();
+// const insertMockdata = async() => {
+//     const items = await Device.find();
+//     if (items.length === 0){
+//         await Device.insertMany(mockData);
+//     }
+//     // await Device.deleteMany();
+// }
+// insertMockdata();
 
 const updateDeviceStatus = async(houseId, roomId, deviceId, updatedDevice) => {
-    const houseIdObj = new mongoose.Types.ObjectId(houseId);
-    const roomIdObj = new mongoose.Types.ObjectId(roomId);
-    const deviceIdObj = new mongoose.Types.ObjectId(deviceId);
+    const houseIdObj = mongoose.Types.ObjectId.createFromHexString(houseId);
+    const roomIdObj = mongoose.Types.ObjectId.createFromHexString(roomId);
+    const deviceIdObj = mongoose.Types.ObjectId.createFromHexString(deviceId);
     try {
         const house = await House.findOneAndUpdate(
             { _id: houseIdObj, "rooms._id": roomIdObj, "rooms.devices._id": deviceIdObj },
@@ -56,7 +56,10 @@ const updateDeviceStatus = async(houseId, roomId, deviceId, updatedDevice) => {
         if (!house) {
             throw new Error('Device not found');
         }
-        return house;
+        const updatedRoom = house.rooms.id(roomIdObj);
+        const updatedDeviceObj = updatedRoom.devices.id(deviceIdObj);
+
+        return updatedDeviceObj;
     } catch (error) {
         throw new Error(`Error updating device status: ${error.message}`);
     }
@@ -84,10 +87,10 @@ app.get('/', (req, res) => {
     res.send('Smart Home DashBoard Backend!')
 })
 
-app.get('/api/devices', async(req, res) => {
-    const devices = await Device.find()
-    res.json(devices)
-})
+// app.get('/api/devices', async(req, res) => {
+//     const devices = await Device.find()
+//     res.json(devices)
+// })
 
 app.get('/users/:id', async(req,res) => {
     const user = await User.findOne({_id: req.params.id})
