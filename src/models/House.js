@@ -30,6 +30,11 @@ const roomsSchema = new mongoose.Schema({
     },
     aC: {
         type: Boolean,
+        required: true
+    },
+    img:{
+        type: String,
+        required: true
     },
     devices: [deviceSchema]
 })
