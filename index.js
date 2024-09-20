@@ -127,7 +127,7 @@ app.post('/signin', async(req, res) => {
     try{
         const user = await User.findOne({email})
         if(!user){
-            return res.status(401).json({message: "Invalid username"})
+            return res.status(401).json({message: "User not found! Sign up now."})
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){
@@ -159,7 +159,7 @@ app.post('/signup', async(req, res) => {
         await user.save()
         const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '1h'})
         const userId = user._id
-        res.status(201).json({message: "Registration Successful", token, userId})
+        res.status(201).json({message: "Successfully Registered!", token, userId})
     }
     catch(error){
         res.status(500).json({message: "Registration Failed"})
