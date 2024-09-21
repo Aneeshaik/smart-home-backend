@@ -17,9 +17,16 @@ const app = express();
 const router = express.Router();
 dotenv.config();
 
+// CORS Configuration
+const corsOptions = {
+    origin: 'https://smart-home-99z7.onrender.com',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    credentials: true,
+};
+
 connectDB();
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')))
 
