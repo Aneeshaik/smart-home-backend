@@ -22,16 +22,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')))
-// app.use('/api/devices', deviceRoutes)
-
-// const insertMockdata = async() => {
-//     const items = await Device.find();
-//     if (items.length === 0){
-//         await Device.insertMany(mockData);
-//     }
-//     // await Device.deleteMany();
-// }
-// insertMockdata();
 
 const updateDeviceStatus = async(houseId, roomId, deviceId, updatedDevice) => {
     const houseIdObj = mongoose.Types.ObjectId.createFromHexString(houseId);
